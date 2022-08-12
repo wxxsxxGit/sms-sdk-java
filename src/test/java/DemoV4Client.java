@@ -33,11 +33,13 @@ public class DemoV4Client {
 
     public static void main(String[] args) {
         try {
-            V4Client v4Client = new V4Client("http://api-t.onmsg.cn/", "xiashuaihttp", "123456", httpWinSize, "http://report-t.onmsg.cn/");
-//            V4Client v4Client = new V4Client("http://api-t.onmsg.cn/", "xiashuaihttp", "123456", httpWinSize);
+//            具体【url/spId/spKey/fetchURL】参数请找商务或者我司技术支持
+            V4Client v4Client = new V4Client("{{url}}", "{{spId}}", "{{spKey}}", httpWinSize, "{{fetchURL}}");
 
             // 单内容发送
-            submit(v4Client);
+//            submit(v4Client);
+//            System.out.println("日统计查询：" + JSON.toJSONString(v4Client.getDailyStats("20220811")));
+//            System.out.println("余额查询：" + JSON.toJSONString(v4Client.getBalance()));
             // 测速
 //            testSpeed(v4Client, 1_0000);
 
@@ -58,7 +60,7 @@ public class DemoV4Client {
      * @param v4Client
      */
     public static void submit(V4Client v4Client) {
-        Sms sms = new Sms("11000000000", "【签名】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
+        Sms sms = new Sms("11000000000", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
         boolean isSync = v4Client.submit(sms, resp -> {
             System.out.println(JSON.toJSONString(resp));
         });
@@ -82,7 +84,7 @@ public class DemoV4Client {
                 System.out.println(i * 100 / amount + "%\t" + (i * 1000 / diff) + "条/秒");
             }
             phone++;
-            Sms sms = new Sms(phone.toString(), "【天猫3】带扩展码号" + i, String.valueOf(i), String.valueOf(i));
+            Sms sms = new Sms(phone.toString(), "【线上线下testSpeed SDK DEMO】带扩展码号" + i, String.valueOf(i), String.valueOf(i));
             boolean isSync = v4Client.submit(sms, resp -> {
                 if (resp.getStatus() != 0) {
                     System.out.println(sms.getMobile() + "\t" + resp.getStatus() + "\t" + resp.getMsg());
@@ -133,7 +135,7 @@ public class DemoV4Client {
         List<Sms> smsContents = new ArrayList<>();
         Long phone = 18888888888L;
         for (int i = 0; i < 100; i++) {
-            smsContents.add(new Sms(phone.toString(), "【线上线下】内容不确定-V4 batchSms-" + i, "666", "sid-it's me"));
+            smsContents.add(new Sms(phone.toString(), "【线上线下batchSms SDK DEMO】内容不确定-V4 batchSms-" + i, "666", "sid-it's me"));
             phone++;
         }
         BatchSubmitResp batchSubmitResp = v4Client.submit(smsContents);

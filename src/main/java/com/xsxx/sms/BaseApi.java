@@ -1,10 +1,6 @@
 package com.xsxx.sms;
 
-import com.xsxx.sms.model.BatchSubmitResp;
-import com.xsxx.sms.model.DeliverResp;
-import com.xsxx.sms.model.ReportResp;
-import com.xsxx.sms.model.Sms;
-import com.xsxx.sms.model.SubmitResp;
+import com.xsxx.sms.model.*;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -64,4 +60,27 @@ public interface BaseApi {
      */
     @Deprecated
     DeliverResp getDeliver();
+
+    /**
+     * V4接口 预付费账号余额查询
+     *
+     * @return
+     */
+    default BalanceResp getBalance() {
+        return null;
+    }
+
+    ;
+
+    /**
+     * V4接口 获取发送账号日统计
+     *
+     * @param date 查询的日期  日期格式化：yyyyMMdd
+     * @return
+     */
+    default DailyStatsResp getDailyStats(String date) {
+        return null;
+    }
+
+    ;
 }

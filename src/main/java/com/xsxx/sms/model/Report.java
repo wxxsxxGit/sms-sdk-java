@@ -6,11 +6,14 @@ package com.xsxx.sms.model;
  * @author momo
  * @date 2019-12-09 13:55:43
  * <p>
- * phone : 18262276782
- * msgId : -6004182853835414462
- * status : PHONERR
- * sendTime : 20171025111347
- * doneTime : 20171025111347
+ * {
+ * "phone" : "13921350591",             // 手机号码
+ * "msgid" : "-8629637681836384963",    // 与提交中的msgid 一致
+ * "status" : "DELIVRD" ,               // 短信状态，参考附表2
+ * "donetime" : "20170816153922",       // 短信到达时间
+ * "fee" : 2,                           // 短信计费条数
+ * "sId" : "123456789abcdefg"           // 批次号
+ * }
  */
 public class Report {
     /**
@@ -18,27 +21,28 @@ public class Report {
      */
     private String phone;
     /**
-     * 短信msgId，与短信submitResp中的MsgId 一致
+     * 短信msgId，
+     * 与短信submitResp中的MsgId 一致
      */
     private String msgid;
     /**
-     * 状态码 DELIVRD 是发送成功
+     * 状态码
+     * DELIVRD 发送成功，其他均为失败
      */
     private String status;
     /**
      * 手机收到短信时间
      */
     private String donetime;
+
     /**
-     * 短信发送时间
+     * 短信计费条数
+     * V4接口适用
      */
-    private String submittime;
+    private int fee;
     /**
-     * 手机上显示的码号
-     */
-    private String spno;
-    /**
-     * V4接口自定义字段，最大64字符
+     * 自定义 批次号
+     * V4接口适用
      */
     private String sId;
 
@@ -74,27 +78,19 @@ public class Report {
         this.donetime = donetime;
     }
 
-    public String getSubmittime() {
-        return submittime;
-    }
-
-    public void setSubmittime(String submittime) {
-        this.submittime = submittime;
-    }
-
-    public String getSpno() {
-        return spno;
-    }
-
-    public void setSpno(String spno) {
-        this.spno = spno;
-    }
-
     public String getsId() {
         return sId;
     }
 
     public void setsId(String sId) {
         this.sId = sId;
+    }
+
+    public int getFee() {
+        return fee;
+    }
+
+    public void setFee(int fee) {
+        this.fee = fee;
     }
 }

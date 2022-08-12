@@ -24,10 +24,13 @@ import java.util.function.Consumer;
 
 /**
  * HTTP API v2.0 提交客户端
+ * 已过期，推荐使用
  *
  * @author momo
  * @date 2020-01-02 13:15:15
+ * @see V4Client
  */
+@Deprecated
 public class V2Client implements BaseApi {
     /**
      * okHttp客户端
@@ -56,6 +59,16 @@ public class V2Client implements BaseApi {
      * 上行报告路径
      */
     protected String URI_DELIVRD;
+
+    /**
+     * 预付费账号余额查询路径
+     */
+    protected String URI_BALANCE;
+
+    /**
+     * 日统计查询路径
+     */
+    protected String URI_DAILY_STATS;
 
     /**
      * 密钥
