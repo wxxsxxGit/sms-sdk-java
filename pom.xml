@@ -6,7 +6,7 @@
 
     <groupId>com.o2o</groupId>
     <artifactId>sms-sdk</artifactId>
-    <version>2.1</version>
+    <version>4.0.0</version>
 
     <packaging>jar</packaging>
     <name>sms-sdk</name>
