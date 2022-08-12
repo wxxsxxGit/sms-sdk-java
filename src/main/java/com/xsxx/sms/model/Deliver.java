@@ -6,48 +6,58 @@ package com.xsxx.sms.model;
  * @author momo
  * @date 2020-01-03 17:32:35
  * <p>
- * phone : 18262276782
- * extCode : -6004182853835414462
- * content : PHONERR
  * {
- * "status":0,
- * "result":[
- * {"phone":"13314599201","extCode":"","content":"td","receivetime":"20180827042439"}
+ * "status" : 0,                             // 固定值0
+ * "result":
+ * [
+ * <p>
+ * {
+ * "phone" : "13921350591",         // 手机号码
+ * "extCode" : "682",               // 用户提交短信时候带的extCode
+ * "content" : "上行回复内容" ,       // 上行内容
+ * "receivetime" : "20170816153922",// 短信到达时间
+ * "sId" : "123456789abcdefg",      // 批次号
+ * "sign" : "签名",
+ * "msgid" : "-8629637681836384963" // 短信唯一编号
+ * }
+ * // 这里是数组会有多条，默认最大500条
+ * ，平台可配置
  * ]
  * }
  */
 public class Deliver {
 
     /**
-     * 手机号
+     * 用户回复的手机号码
      */
     private String phone;
     /**
-     * 通道的拓展码
+     * 用户提交短信时候带的extCode
      */
     private String extCode;
     /**
-     * 用户回的信息的内容
+     * 用户回复的信息内容
      */
     private String content;
     /**
-     * 上行收到时间
+     * 运营商推送的用户回复信息时间
+     * 时间格式化： yyyyMMddHHmmss
      */
     private String receivetime;
 
     /**
-     * 真实发送通道号
-     */
-    private String spno;
-
-    /**
-     * V4接口，短信msgId，与短信submitResp中的MsgId 一致
+     * 对应短信提交时的msgid
      */
     private String msgid;
     /**
-     * V4接口，自定义字段，最大64字符
+     * V4接口，对应短信提交时的sId
      */
     private String sId;
+
+    /**
+     * 对应短信提交时的签名（无下发上行没有此字段）
+     */
+    private String sign;
 
 
     public String getPhone() {
@@ -82,14 +92,6 @@ public class Deliver {
         this.extCode = extCode;
     }
 
-    public String getSpno() {
-        return spno;
-    }
-
-    public void setSpno(String spno) {
-        this.spno = spno;
-    }
-
     public String getMsgid() {
         return msgid;
     }
@@ -104,5 +106,13 @@ public class Deliver {
 
     public void setsId(String sId) {
         this.sId = sId;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

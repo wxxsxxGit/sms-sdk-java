@@ -10,11 +10,25 @@ import java.util.Base64;
  * @Date: 2020/4/7
  */
 public class Hmac {
-
-    public static String createSignature(long timeStamp, String body, String key){
+    /**
+     * 根据 密钥生产 hmac
+     *
+     * @param timeStamp
+     * @param body
+     * @param key
+     * @return
+     */
+    public static String createSignature(long timeStamp, String body, String key) {
         return hmac(body + timeStamp, key);
     }
 
+    /**
+     * 根据 密钥生产 hmac
+     *
+     * @param message
+     * @param key
+     * @return
+     */
     private static String hmac(String message, String key) {
         String result = null;
         try {
@@ -27,8 +41,4 @@ public class Hmac {
         }
         return result;
     }
-
-    public static void main(String[] args) {
-    }
-
 }

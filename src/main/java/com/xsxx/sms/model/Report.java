@@ -32,6 +32,7 @@ public class Report {
     private String status;
     /**
      * 手机收到短信时间
+     * 时间格式化 yyyyMMddHHmmss
      */
     private String donetime;
 

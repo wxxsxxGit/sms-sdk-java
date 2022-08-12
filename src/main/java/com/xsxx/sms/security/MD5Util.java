@@ -30,10 +30,4 @@ public class MD5Util {
             return null;
         }
     }
-
-    public static void main(String[] args) {
-        String str = "阿里";
-        System.out.println(MD5(str));
-        System.out.println("5ac0b6e56fba67ca6c16f36e694563fc".equalsIgnoreCase(MD5(str)));
-    }
 }

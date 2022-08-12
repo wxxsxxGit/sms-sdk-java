@@ -38,7 +38,7 @@ public class Sms {
 
     /**
      * 客户自定义(V4接口支持)
-     * 最大长度24，不支持表情符
+     * 最大长度64，不支持表情符
      */
     private String sId;
 
