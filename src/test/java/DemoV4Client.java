@@ -1,4 +1,4 @@
-import com.alibaba.fastjson.JSON;
+import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.V4Client;
 import com.xsxx.sms.model.BatchSubmitResp;
 import com.xsxx.sms.model.DeliverResp;
@@ -38,8 +38,10 @@ public class DemoV4Client {
 
             // 单内容发送
 //            submit(v4Client);
-//            System.out.println("日统计查询：" + JSON.toJSONString(v4Client.getDailyStats("20220811")));
-//            System.out.println("余额查询：" + JSON.toJSONString(v4Client.getBalance()));
+//            多内容多号码发送 不推荐
+//            batchSms(v4Client);
+//            System.out.println("日统计查询：" + JSONUtil.toJsonStr(v4Client.getDailyStats("20220811")));
+//            System.out.println("余额查询：" + JSONUtil.toJsonStr(v4Client.getBalance()));
             // 测速
 //            testSpeed(v4Client, 1_0000);
 
@@ -60,9 +62,9 @@ public class DemoV4Client {
      * @param v4Client
      */
     public static void submit(V4Client v4Client) {
-        Sms sms = new Sms("11000000000", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
+        Sms sms = new Sms("13813999323", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
         boolean isSync = v4Client.submit(sms, resp -> {
-            System.out.println(JSON.toJSONString(resp));
+            System.out.println(JSONUtil.toJsonStr(resp));
         });
     }
 
@@ -109,7 +111,7 @@ public class DemoV4Client {
     @Deprecated
     public static void getReport(V4Client v4Client) {
         ReportResp report = v4Client.getReport();
-        System.out.println(JSON.toJSON(report));
+        System.out.println(JSONUtil.toJsonStr(report));
     }
 
     /**
@@ -122,7 +124,7 @@ public class DemoV4Client {
     @Deprecated
     public static void getDeliver(V4Client v4Client) {
         DeliverResp deliver = v4Client.getDeliver();
-        System.out.println(JSON.toJSON(deliver));
+        System.out.println(JSONUtil.toJsonStr(deliver));
     }
 
     /**
@@ -139,6 +141,6 @@ public class DemoV4Client {
             phone++;
         }
         BatchSubmitResp batchSubmitResp = v4Client.submit(smsContents);
-        System.out.println(JSON.toJSON(batchSubmitResp));
+        System.out.println(JSONUtil.toJsonStr(batchSubmitResp));
     }
 }

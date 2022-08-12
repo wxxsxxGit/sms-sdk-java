@@ -1,28 +1,8 @@
 package com.xsxx.sms.util;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.xsxx.sms.BaseApi;
-import com.xsxx.sms.model.BatchSubmitResp;
-import com.xsxx.sms.model.DeliverResp;
-import com.xsxx.sms.model.ReportResp;
-import com.xsxx.sms.model.Sms;
-import com.xsxx.sms.model.SubmitResp;
-import com.xsxx.sms.security.MD5Util;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
  * 工具类

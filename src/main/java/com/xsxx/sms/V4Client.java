@@ -1,9 +1,8 @@
 package com.xsxx.sms;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.model.BalanceResp;
 import com.xsxx.sms.model.DailyStatsResp;
-import com.xsxx.sms.model.ReportResp;
 import com.xsxx.sms.model.Sms;
 import com.xsxx.sms.security.Hmac;
 import com.xsxx.sms.util.DateUtils;
@@ -45,11 +44,14 @@ public class V4Client extends V2Client {
         if (!url.endsWith("/")) {
             url += "/";
         }
-        this.token = token;
+        this.token = spKey;
         this.URI_SUBMIT = url + "sms/send/" + spId;
         this.URI_BATCHSUBMIT = url + "sms/sendBatch/" + spId;
         // 开启主动获取
         if (SmsUtil.isURL(fetchURL)) {
+            if (!fetchURL.endsWith("/")) {
+                fetchURL += "/";
+            }
             this.URI_REPORT = fetchURL + "sms/getReport/" + spId;
             this.URI_DELIVRD = fetchURL + "sms/getUpstream/" + spId;
             this.URI_BALANCE = fetchURL + "sms/getBalance/" + spId;
@@ -82,7 +84,7 @@ public class V4Client extends V2Client {
         try {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                resp = JSONObject.parseObject(response.body().string(), BalanceResp.class);
+                resp = JSONUtil.toBean(response.body().string(), BalanceResp.class);
             } else {
                 resp.setStatus(response.code());
                 resp.setMsg(response.message());
@@ -112,7 +114,7 @@ public class V4Client extends V2Client {
             Request request = makeRequest(URI_DAILY_STATS, "{\"date\":" + date + "}");
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                resp = JSONObject.parseObject(response.body().string(), DailyStatsResp.class);
+                resp = JSONUtil.toBean(response.body().string(), DailyStatsResp.class);
             } else {
                 resp.setStatus(response.code());
                 resp.setMsg(response.message());
@@ -157,7 +159,7 @@ public class V4Client extends V2Client {
      */
     @Override
     protected Request makeRequest(Sms sms) {
-        String body = JSONObject.toJSONString(sms);
+        String body = JSONUtil.toJsonStr(sms);
         return makeRequest(URI_SUBMIT, body);
     }
 
@@ -171,7 +173,7 @@ public class V4Client extends V2Client {
     @Override
     @Deprecated
     protected Request makeRequest(List<Sms> smsContents) {
-        String body = JSONObject.toJSONString(smsContents);
+        String body = JSONUtil.toJsonStr(smsContents);
         return makeRequest(URI_BATCHSUBMIT, body);
     }
 

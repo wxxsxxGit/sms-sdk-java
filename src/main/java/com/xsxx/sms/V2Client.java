@@ -1,7 +1,8 @@
 package com.xsxx.sms;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.model.BatchSubmitResp;
 import com.xsxx.sms.model.Sms;
 import com.xsxx.sms.model.DeliverResp;
@@ -147,7 +148,7 @@ public class V2Client implements BaseApi {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    consumer.accept(JSONObject.parseObject(response.body().string(), SubmitResp.class));
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SubmitResp.class));
                     response.body().close();
                 }
             });
@@ -159,7 +160,7 @@ public class V2Client implements BaseApi {
             try {
                 Response response = okHttpClient.newCall(request).execute();
                 if (response.isSuccessful()) {
-                    resp = JSONObject.parseObject(response.body().string(), SubmitResp.class);
+                    resp = JSONUtil.toBean(response.body().string(), SubmitResp.class);
                 } else {
                     resp.setStatus(response.code());
                     resp.setMsg(response.message());
@@ -191,7 +192,7 @@ public class V2Client implements BaseApi {
         try {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                resp = JSONObject.parseObject(response.body().string(), ReportResp.class);
+                resp = JSONUtil.toBean(response.body().string(), ReportResp.class);
             } else {
                 resp.setStatus(response.code());
                 resp.setMsg(response.message());
@@ -221,7 +222,7 @@ public class V2Client implements BaseApi {
         try {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                resp = JSONObject.parseObject(response.body().string(), DeliverResp.class);
+                resp = JSONUtil.toBean(response.body().string(), DeliverResp.class);
             } else {
                 resp.setStatus(response.code());
                 resp.setMsg(response.message());
@@ -249,7 +250,7 @@ public class V2Client implements BaseApi {
         try {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
-                resp = JSONObject.parseObject(response.body().string(), BatchSubmitResp.class);
+                resp = JSONUtil.toBean(response.body().string(), BatchSubmitResp.class);
             } else {
                 resp.setStatus(response.code());
                 resp.setMsg(response.message());
@@ -300,7 +301,7 @@ public class V2Client implements BaseApi {
     protected Request makeRequest(List<Sms> smsContents) {
         FormBody.Builder builder = new FormBody.Builder()
                 .add("md5password", token)
-                .add("contentArr", JSON.toJSONString(smsContents));
+                .add("contentArr", JSONUtil.toJsonStr(smsContents));
         RequestBody requestBody = builder.build();
         builder.build();
         return new Request.Builder()

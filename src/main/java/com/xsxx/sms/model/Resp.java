@@ -1,6 +1,8 @@
 package com.xsxx.sms.model;
 
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.constants.ApiStatus;
 
 /**
@@ -47,6 +49,6 @@ public class Resp {
 
     @Override
     public String toString() {
-        return JSONObject.toJSONString(this);
+        return JSONUtil.toJsonStr(this);
     }
 }

@@ -1,4 +1,4 @@
-import com.alibaba.fastjson.JSON;
+import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.V2Client;
 import com.xsxx.sms.model.BatchSubmitResp;
 import com.xsxx.sms.model.DeliverResp;
@@ -56,7 +56,7 @@ public class DemoV2Client {
     public static void submit(V2Client v2Client) {
         Sms sms = new Sms("11000000000", "【签名】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", String.valueOf(System.currentTimeMillis()));
         boolean isSync = v2Client.submit(sms, resp -> {
-            System.out.println(JSON.toJSONString(resp));
+            System.out.println(JSONUtil.toJsonStr(resp));
         });
     }
 
@@ -103,7 +103,7 @@ public class DemoV2Client {
     @Deprecated
     public static void getReport(V2Client v2Client) {
         ReportResp report = v2Client.getReport();
-        System.out.println(JSON.toJSON(report));
+        System.out.println(JSONUtil.toJsonStr(report));
     }
 
     /**
@@ -116,7 +116,7 @@ public class DemoV2Client {
     @Deprecated
     public static void getDeliver(V2Client v2Client) {
         DeliverResp deliver = v2Client.getDeliver();
-        System.out.println(JSON.toJSON(deliver));
+        System.out.println(JSONUtil.toJsonStr(deliver));
     }
 
     /**
@@ -133,6 +133,6 @@ public class DemoV2Client {
             phone++;
         }
         BatchSubmitResp batchSubmitResp = v2Client.submit(smsContents);
-        System.out.println(JSON.toJSON(batchSubmitResp));
+        System.out.println(JSONUtil.toJsonStr(batchSubmitResp));
     }
 }
