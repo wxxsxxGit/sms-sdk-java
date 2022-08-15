@@ -62,7 +62,7 @@ public class DemoV4Client {
      * @param v4Client
      */
     public static void submit(V4Client v4Client) {
-        Sms sms = new Sms("13813999323", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
+        Sms sms = new Sms("11000000000", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
         boolean isSync = v4Client.submit(sms, resp -> {
             System.out.println(JSONUtil.toJsonStr(resp));
         });
