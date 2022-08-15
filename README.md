@@ -7,11 +7,13 @@ sms http protocol sdk
 [【V4】短信服务API接入-帮助文档]:https://api-wiki.wxxsxx.com
 [【V4】短信服务接入协议错误码对照表]:https://thoughts.teambition.com/share/5f22592404ce5e001a397794
 # Maven
-  在项目的pom.xml的dependencies中加入以下内容:
+### [Maven中央库](https://search.maven.org/artifact/cn.wxxsxx/sms-sdk-java/4.0.0/jar)
+
+在项目的pom.xml的dependencies中加入以下内容:
 ```
 <dependency>
     <groupId>cn.wxxsxx</groupId>
      <artifactId>sms-sdk-java</artifactId>
      <version>4.0.0</version>
-  </dependency>
+</dependency>
 ```
