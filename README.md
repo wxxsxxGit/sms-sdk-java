@@ -19,3 +19,12 @@ sms http protocol sdk
      <version>4.0.0</version>
 </dependency>
 ```
+### 低版本okhttp3(3.10.0)依赖
+在项目的pom.xml的dependencies中加入以下内容:
+```
+<dependency>
+    <groupId>cn.wxxsxx</groupId>
+     <artifactId>sms-sdk-java</artifactId>
+     <version>4.0.1</version>
+</dependency>
+```
