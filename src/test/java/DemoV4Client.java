@@ -34,10 +34,11 @@ public class DemoV4Client {
     public static void main(String[] args) {
         try {
 //            具体【url/spId/spKey/fetchURL】参数请找商务或者我司技术支持
-            V4Client v4Client = new V4Client("{{url}}", "{{spId}}", "{{spKey}}", httpWinSize, "{{fetchURL}}");
+            String url = "", spId = "", spKey = "", fetchURL = "";
+            V4Client v4Client = new V4Client(url, spId, spKey, httpWinSize, fetchURL);
 
             // 单内容发送
-//            submit(v4Client);
+            submit(v4Client);
 //            多内容多号码发送 不推荐
 //            batchSms(v4Client);
 //            System.out.println("日统计查询：" + JSONUtil.toJsonStr(v4Client.getDailyStats("20220811")));

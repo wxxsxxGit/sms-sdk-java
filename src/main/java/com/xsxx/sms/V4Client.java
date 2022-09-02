@@ -141,8 +141,8 @@ public class V4Client extends V2Client {
         long timeStamp = System.currentTimeMillis();
         String signature = Hmac.createSignature(timeStamp, body, this.token);
         String header = "HMAC-SHA256 " + timeStamp + "," + signature;
-        MediaType mediaType = MediaType.Companion.parse("application/json;charset=utf-8");
-        RequestBody requestBody = RequestBody.Companion.create(body, mediaType);
+        MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
+        RequestBody requestBody = RequestBody.create(mediaType,body);
         return new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", header)
