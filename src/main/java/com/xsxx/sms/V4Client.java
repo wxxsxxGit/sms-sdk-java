@@ -4,17 +4,19 @@ import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.model.BalanceResp;
 import com.xsxx.sms.model.DailyStatsResp;
 import com.xsxx.sms.model.Sms;
+import com.xsxx.sms.model.SubmitResp;
 import com.xsxx.sms.security.Hmac;
+import com.xsxx.sms.util.AesUtil;
 import com.xsxx.sms.util.DateUtils;
 import com.xsxx.sms.util.SmsUtil;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * HTTP API v4.0 提交客户端
@@ -28,6 +30,7 @@ import java.util.List;
  * @date 2022/08/12
  */
 public class V4Client extends V2Client {
+    private String URI_AES_SUBMIT;
 
     /**
      * 初始化
@@ -46,6 +49,7 @@ public class V4Client extends V2Client {
         }
         this.token = spKey;
         this.URI_SUBMIT = url + "sms/send/" + spId;
+        this.URI_AES_SUBMIT = url + "sms/secureSend/" + spId;
         this.URI_BATCHSUBMIT = url + "sms/sendBatch/" + spId;
         // 开启主动获取
         if (SmsUtil.isURL(fetchURL)) {
@@ -142,7 +146,7 @@ public class V4Client extends V2Client {
         String signature = Hmac.createSignature(timeStamp, body, this.token);
         String header = "HMAC-SHA256 " + timeStamp + "," + signature;
         MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
-        RequestBody requestBody = RequestBody.create(mediaType,body);
+        RequestBody requestBody = RequestBody.create(mediaType, body);
         return new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", header)
@@ -198,5 +202,60 @@ public class V4Client extends V2Client {
     protected Request makeRequest(String url) {
         String body = maxSize > 0 ? "{\"maxSize\":" + maxSize + "}" : "";
         return makeRequest(url, body);
+    }
+
+    /**
+     * AES加密
+     * 发送提交
+     *
+     * @param sms
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean submitByAes(Sms sms, Consumer<SubmitResp> consumer) throws Exception {
+
+        // 请求体
+        String body = JSONUtil.toJsonStr(sms);
+        Map<String, String> aesBody = new HashMap<>();
+        aesBody.put("content", AesUtil.aesEncode(token, body));
+        Request request = makeRequest(URI_AES_SUBMIT, JSONUtil.toJsonStr(aesBody));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SubmitResp submitResp = new SubmitResp();
+                    submitResp.setStatus(-1);
+                    submitResp.setMsg(e.getMessage());
+                    consumer.accept(submitResp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SubmitResp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            SubmitResp resp = new SubmitResp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), SubmitResp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
     }
 }
