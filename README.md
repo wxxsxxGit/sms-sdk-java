@@ -18,6 +18,18 @@ sms http protocol sdk
 
 ### [Maven中央库](https://search.maven.org/artifact/cn.wxxsxx/sms-sdk-java/)
 
+### okhttp3版本(3.12.13)依赖,本版本支持V4 模板报备及发送接口
+
+在项目的pom.xml的dependencies中加入以下内容:
+
+```
+<dependency>
+    <groupId>cn.wxxsxx</groupId>
+     <artifactId>sms-sdk-java</artifactId>
+     <version>4.0.4</version>
+</dependency>
+```
+
 ### okhttp3版本(3.12.13)依赖,本版本支持V4 AES128加密发送接口
 
 在项目的pom.xml的dependencies中加入以下内容:
