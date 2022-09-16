@@ -20,7 +20,7 @@ public class SmsTemplateQueryStatusResp extends Resp {
         /**
          * 模板编号查询状态
          */
-        private int status;
+        private Integer status;
         /**
          * 提示信息 默认null
          */
@@ -32,7 +32,7 @@ public class SmsTemplateQueryStatusResp extends Resp {
          * 2：审核失败
          * 3:   模板禁用
          */
-        private int auditStatus;
+        private Integer auditStatus;
 
         /**
          * 审核备注。
@@ -47,13 +47,6 @@ public class SmsTemplateQueryStatusResp extends Resp {
          */
         private String createTime;
 
-        public int getAuditStatus() {
-            return auditStatus;
-        }
-
-        public void setAuditStatus(int auditStatus) {
-            this.auditStatus = auditStatus;
-        }
 
         public String getAuditReason() {
             return auditReason;
@@ -71,20 +64,28 @@ public class SmsTemplateQueryStatusResp extends Resp {
             this.createTime = createTime;
         }
 
-        public int getStatus() {
-            return status;
-        }
-
-        public void setStatus(int status) {
-            this.status = status;
-        }
-
         public String getMsg() {
             return msg;
         }
 
         public void setMsg(String msg) {
             this.msg = msg;
+        }
+
+        public Integer getStatus() {
+            return status;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public Integer getAuditStatus() {
+            return auditStatus;
+        }
+
+        public void setAuditStatus(Integer auditStatus) {
+            this.auditStatus = auditStatus;
         }
     }
 

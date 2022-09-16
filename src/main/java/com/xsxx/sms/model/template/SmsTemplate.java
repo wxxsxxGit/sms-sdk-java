@@ -23,7 +23,7 @@ public class SmsTemplate {
      *
      * @see TemplateTypeEnum#ordinal()
      */
-    private int templateType;
+    private Integer templateType;
     /**
      * 模板内容，支持变量
      * eg.  	您正在申请线上线下短信报备模板，验证码为：${code}，5分钟内有效！
@@ -51,11 +51,11 @@ public class SmsTemplate {
         this.templateName = templateName;
     }
 
-    public int getTemplateType() {
+    public Integer getTemplateType() {
         return templateType;
     }
 
-    public void setTemplateType(int templateType) {
+    public void setTemplateType(Integer templateType) {
         this.templateType = templateType;
     }
 
