@@ -21,13 +21,7 @@ public class SmsBatchSubimtByTemplateResp extends Resp {
     /**
      * 批量短信发送 响应数据 单条VO
      */
-    public static class SubmitByTemplateRespVo {
-
-        /**
-         * 短信提交状态码，
-         * 返回0代表提交成功。
-         */
-        private int status;
+    public static class SubmitByTemplateRespVo extends Resp {
 
         /**
          * 单个手机号码
@@ -42,5 +36,37 @@ public class SmsBatchSubimtByTemplateResp extends Resp {
          * 自定义msgid
          */
         private String msgid;
+
+        public String getMobile() {
+            return mobile;
+        }
+
+        public void setMobile(String mobile) {
+            this.mobile = mobile;
+        }
+
+        public int getSplitCount() {
+            return splitCount;
+        }
+
+        public void setSplitCount(int splitCount) {
+            this.splitCount = splitCount;
+        }
+
+        public String getMsgid() {
+            return msgid;
+        }
+
+        public void setMsgid(String msgid) {
+            this.msgid = msgid;
+        }
+    }
+
+    public List<SubmitByTemplateRespVo> getResult() {
+        return result;
+    }
+
+    public void setResult(List<SubmitByTemplateRespVo> result) {
+        this.result = result;
     }
 }
