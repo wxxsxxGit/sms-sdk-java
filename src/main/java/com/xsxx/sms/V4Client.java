@@ -364,6 +364,7 @@ public class V4Client extends V2Client {
         // 请求体
         Map<String, Long> body = new HashMap<>();
         body.put("templateCode", templateCode);
+//        System.out.println("delete params:\n"+JSONUtil.toJsonStr(body));
         Request request = makeRequest(URI_DEL_TEMPLATE, JSONUtil.toJsonStr(body));
         // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
         if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
@@ -423,6 +424,7 @@ public class V4Client extends V2Client {
         }
         Map<String, String> body = new HashMap<>();
         body.put("templateCodes", CollUtil.join(templateCodes, StrUtil.COMMA));
+//        System.out.println("query params:\n"+JSONUtil.toJsonStr(body));
         Request request = makeRequest(URI_QUERY_TEMPLATE_STATUS, JSONUtil.toJsonStr(body));
         // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
         if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
