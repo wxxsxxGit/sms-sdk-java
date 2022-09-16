@@ -1,10 +1,19 @@
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.lang.UUID;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.V4Client;
 import com.xsxx.sms.model.BatchSubmitResp;
 import com.xsxx.sms.model.DeliverResp;
 import com.xsxx.sms.model.ReportResp;
 import com.xsxx.sms.model.Sms;
+import com.xsxx.sms.model.template.SmsSubimtByTemplateReqVo;
+import com.xsxx.sms.model.template.SmsTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,12 +42,25 @@ public class DemoV4Client {
 
     public static void main(String[] args) {
         try {
-//            具体【url/spId/spKey/fetchURL】参数请找商务或者我司技术支持
-            String url = "", spId = "", spKey = "", fetchURL = "";
-            V4Client v4Client = new V4Client(url, spId, spKey, httpWinSize, fetchURL);
-
+//            具体【url/spId/spKey/fetchURL/templateURL】参数请找商务或者我司技术支持
+            String spId,url,spKey,fetchURL,templateURL;
+            V4Client v4Client = new V4Client(url, spId, spKey, httpWinSize, fetchURL, templateURL);
+//            添加模板
+//            addTemplate(v4Client);
+//            修改模板
+//            modifyTemplate(v4Client);
+//            删除模板
+//            deleteTemplate(v4Client);
+//            查询模板状态
+//            queryTemplateStatus(v4Client);
+//            单模板发送
+//            submitByTemplateCode(v4Client);
+//            批量模板发送
+            batchSubmitByTemplateCode(v4Client);
             // 单内容发送
-            submit(v4Client);
+//            submit(v4Client);
+//            单内容AES
+//            submitAES(v4Client);
 //            多内容多号码发送 不推荐
 //            batchSms(v4Client);
 //            System.out.println("日统计查询：" + JSONUtil.toJsonStr(v4Client.getDailyStats("20220811")));
@@ -65,6 +87,122 @@ public class DemoV4Client {
     public static void submit(V4Client v4Client) {
         Sms sms = new Sms("11000000000", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
         boolean isSync = v4Client.submit(sms, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 报备模板
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void addTemplate(V4Client v4Client) throws Exception {
+        SmsTemplate smsTemplate = new SmsTemplate();
+        smsTemplate.setTemplateName("线上线下addTemplate SDK DEMO " + RandomUtil.randomString(10));
+        smsTemplate.setTemplateContent("线上线下addTemplate SDK DEMO template content ${" + RandomUtil.randomString(4) + "} template " + UUID.fastUUID().toString());
+        smsTemplate.setTemplateType(RandomUtil.randomInt(0, 3));
+        smsTemplate.setRemark("线上线下addTemplate SDK DEMO template " + DateTime.now().toString());
+        boolean isSync = v4Client.addOrModifyTemplate(true, smsTemplate, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 修改模板
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void modifyTemplate(V4Client v4Client) throws Exception {
+        SmsTemplate smsTemplate = new SmsTemplate();
+        smsTemplate.setTemplateName("线上线下addTemplate SDK DEMO " + RandomUtil.randomString(10));
+        smsTemplate.setTemplateContent("线上线下addTemplate SDK DEMO template content ${" + RandomUtil.randomString(4) + "} template ");
+        smsTemplate.setTemplateType(RandomUtil.randomInt(0, 3));
+        smsTemplate.setRemark("线上线下addTemplate SDK DEMO template " + DateTime.now().toString());
+        smsTemplate.setTemplateCode(-7481228446574445708L);
+        boolean isSync = v4Client.addOrModifyTemplate(false, smsTemplate, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 删除模板
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void deleteTemplate(V4Client v4Client) throws Exception {
+        boolean isSync = v4Client.deleteTemplate(-7481228446574445708L, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 查询模板状态
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void queryTemplateStatus(V4Client v4Client) throws Exception {
+        boolean isSync = v4Client.queryTemplateStatus(CollUtil.newArrayList(
+                -7481228446574445708L, -7479127829609579659L), resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 短信模板单条发送
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void submitByTemplateCode(V4Client v4Client) throws Exception {
+        SmsSubimtByTemplateReqVo smsSubimtByTemplateReqVo = new SmsSubimtByTemplateReqVo();
+        smsSubimtByTemplateReqVo.setSignName("线上线下submit SDK DEMO");
+        smsSubimtByTemplateReqVo.setMobile("1" + RandomUtil.randomString("0123456789", 10));
+        smsSubimtByTemplateReqVo.setExtCode(RandomUtil.randomNumbers(RandomUtil.randomInt(1, 12)));
+        smsSubimtByTemplateReqVo.setMsgid(UUID.randomUUID().toString(true));
+        smsSubimtByTemplateReqVo.setTemplateCode(-7479043716970054794L);
+        smsSubimtByTemplateReqVo.setParams(JSONUtil.toJsonStr(MapUtil.of("9ju9", RandomUtil.randomString(RandomUtil.randomInt(1, 12)))));
+
+        boolean isSync = v4Client.submitByTemplateCode(smsSubimtByTemplateReqVo, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    /**
+     * 短信模板单条发送
+     *
+     * @param v4Client
+     * @throws Exception
+     */
+    public static void batchSubmitByTemplateCode(V4Client v4Client) throws Exception {
+        List<SmsSubimtByTemplateReqVo> reqVoList = new ArrayList<>();
+        int count = RandomUtil.randomInt(1, 100);
+        for (int i = 0; i < count; i++) {
+            SmsSubimtByTemplateReqVo smsSubimtByTemplateReqVo = new SmsSubimtByTemplateReqVo();
+            smsSubimtByTemplateReqVo.setSignName("线上线下submit SDK DEMO");
+            smsSubimtByTemplateReqVo.setMobile("1" + RandomUtil.randomString("0123456789", 10));
+            smsSubimtByTemplateReqVo.setExtCode(RandomUtil.randomNumbers(RandomUtil.randomInt(1, 12)));
+            smsSubimtByTemplateReqVo.setMsgid(UUID.randomUUID().toString(true));
+            smsSubimtByTemplateReqVo.setTemplateCode(RandomUtil.randomEle(CollUtil.newArrayList(
+                    -7479043716970054794L, -7479127829609579659L)));
+            smsSubimtByTemplateReqVo.setParams(JSONUtil.
+                    toJsonStr(MapUtil.of(Pair.of("9ju9", RandomUtil.randomString(RandomUtil.randomInt(1, 12)))
+                            , Pair.of("f8xk", RandomUtil.randomString(RandomUtil.randomInt(1, 12))))));
+            reqVoList.add(smsSubimtByTemplateReqVo);
+
+        }
+
+        boolean isSync = v4Client.batchSubmitByTemplateCode(reqVoList, resp -> {
+            System.out.println(JSONUtil.toJsonStr(resp));
+        });
+    }
+
+    public static void submitAES(V4Client v4Client) throws Exception {
+        Sms sms = new Sms("13800000001", "【线上线下submit SDK DEMO】验证码 " + System.currentTimeMillis() + "，5分钟内有效。如非本人操作，请忽略。", "666");
+        boolean isSync = v4Client.submitByAes(sms, resp -> {
             System.out.println(JSONUtil.toJsonStr(resp));
         });
     }

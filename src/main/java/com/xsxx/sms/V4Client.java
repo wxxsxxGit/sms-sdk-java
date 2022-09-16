@@ -1,10 +1,12 @@
 package com.xsxx.sms;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.xsxx.sms.model.BalanceResp;
-import com.xsxx.sms.model.DailyStatsResp;
-import com.xsxx.sms.model.Sms;
-import com.xsxx.sms.model.SubmitResp;
+import com.xsxx.sms.model.*;
+import com.xsxx.sms.model.template.*;
 import com.xsxx.sms.security.Hmac;
 import com.xsxx.sms.util.AesUtil;
 import com.xsxx.sms.util.DateUtils;
@@ -30,7 +32,34 @@ import java.util.function.Consumer;
  * @date 2022/08/12
  */
 public class V4Client extends V2Client {
+    /**
+     * aes128 加密发送
+     */
     private String URI_AES_SUBMIT;
+    /**
+     * 添加模板
+     */
+    private String URI_ADD_TEMPLATE;
+    /**
+     * 修改模板
+     */
+    private String URI_MODIFY_TEMPLATE;
+    /**
+     * 删除模板
+     */
+    private String URI_DEL_TEMPLATE;
+    /**
+     * 查询模板状态
+     */
+    private String URI_QUERY_TEMPLATE_STATUS;
+    /**
+     * 模板短信发送
+     */
+    private String URI_SUBMIT_BY_TEMPLATE;
+    /**
+     * 批量模板短信发送
+     */
+    private String URI_BATCH_SUBMIT_BY_TEMPLATE;
 
     /**
      * 初始化
@@ -40,9 +69,10 @@ public class V4Client extends V2Client {
      * @param spKey          我方提供的发送账号的预共享密钥的
      * @param requestPerHost http窗口数量
      * @param fetchURL       获取状态/上行报告地址
+     * @param templateURL    模板报备发送提交url
      * @throws IllegalArgumentException
      */
-    public V4Client(String url, String spId, String spKey, Integer requestPerHost, String fetchURL) throws IllegalArgumentException {
+    public V4Client(String url, String spId, String spKey, Integer requestPerHost, String fetchURL, String templateURL) throws IllegalArgumentException {
         super(url, spId, spKey, requestPerHost, fetchURL);
         if (!url.endsWith("/")) {
             url += "/";
@@ -61,14 +91,25 @@ public class V4Client extends V2Client {
             this.URI_BALANCE = fetchURL + "sms/getBalance/" + spId;
             this.URI_DAILY_STATS = fetchURL + "sms/getDailyStats/" + spId;
         }
+        if (SmsUtil.isURL(templateURL)) {
+            if (!templateURL.endsWith("/")) {
+                templateURL += "/";
+            }
+            this.URI_ADD_TEMPLATE = templateURL + "sms/template/add/" + spId;
+            this.URI_MODIFY_TEMPLATE = templateURL + "sms/template/modify/" + spId;
+            this.URI_DEL_TEMPLATE = templateURL + "sms/template/delete/" + spId;
+            this.URI_QUERY_TEMPLATE_STATUS = templateURL + "sms/template/status/" + spId;
+            this.URI_SUBMIT_BY_TEMPLATE = templateURL + "sms/template/sendSms/" + spId;
+            this.URI_BATCH_SUBMIT_BY_TEMPLATE = templateURL + "sms/template/sendBatchSms/" + spId;
+        }
     }
 
     public V4Client(String url, String spId, String spKey, Integer requestPerHost) throws IllegalArgumentException {
-        this(url, spId, spKey, requestPerHost, null);
+        this(url, spId, spKey, requestPerHost, null, null);
     }
 
     public V4Client(String url, String spId, String spKey) throws IllegalArgumentException {
-        this(url, spId, spKey, null, null);
+        this(url, spId, spKey, null, null, null);
     }
 
     /**
@@ -258,4 +299,271 @@ public class V4Client extends V2Client {
             return true;
         }
     }
+
+    /**
+     * 添加或修改模板
+     *
+     * @param isAdd       true 添加模板 false 修改模板
+     * @param smsTemplate
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean addOrModifyTemplate(boolean isAdd, SmsTemplate smsTemplate, Consumer<SmsTemplateAddResp> consumer) throws Exception {
+
+        // 请求体
+        Request request = makeRequest(isAdd ? URI_ADD_TEMPLATE : URI_MODIFY_TEMPLATE, JSONUtil.toJsonStr(smsTemplate));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SmsTemplateAddResp submitResp = new SmsTemplateAddResp();
+                    submitResp.setStatus(-1);
+                    submitResp.setMsg(e.getMessage());
+                    consumer.accept(submitResp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SmsTemplateAddResp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            SmsTemplateAddResp resp = new SmsTemplateAddResp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), SmsTemplateAddResp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
+    }
+
+    /**
+     * 删除模板
+     *
+     * @param templateCode 模板编号
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean deleteTemplate(Long templateCode, Consumer<Resp> consumer) throws Exception {
+
+        // 请求体
+        Map<String, Long> body = new HashMap<>();
+        body.put("templateCode", templateCode);
+        Request request = makeRequest(URI_DEL_TEMPLATE, JSONUtil.toJsonStr(body));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Resp resp = new Resp();
+                    resp.setStatus(-1);
+                    resp.setMsg(e.getMessage());
+                    consumer.accept(resp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), Resp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            Resp resp = new Resp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), Resp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
+    }
+
+    /**
+     * 查询模板状态
+     *
+     * @param templateCodes 短信模板唯一编号列表 一批次最多100
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean queryTemplateStatus(List<Long> templateCodes, Consumer<SmsTemplateQueryStatusResp> consumer) throws Exception {
+
+        // 请求体
+        if (CollUtil.isEmpty(templateCodes)) {
+            throw new Exception("短信模板唯一编号列表为空");
+        }
+        if (templateCodes.size() > 100) {
+            throw new Exception("短信模板唯一编号列表一批次最多100");
+        }
+        Map<String, String> body = new HashMap<>();
+        body.put("templateCodes", CollUtil.join(templateCodes, StrUtil.COMMA));
+        Request request = makeRequest(URI_QUERY_TEMPLATE_STATUS, JSONUtil.toJsonStr(body));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SmsTemplateQueryStatusResp submitResp = new SmsTemplateQueryStatusResp();
+                    submitResp.setStatus(-1);
+                    submitResp.setMsg(e.getMessage());
+                    consumer.accept(submitResp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SmsTemplateQueryStatusResp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            SmsTemplateQueryStatusResp resp = new SmsTemplateQueryStatusResp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), SmsTemplateQueryStatusResp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
+    }
+
+    /**
+     * 单个模板短信发送
+     *
+     * @param smsSubimtByTemplateReqVo 模板短信发送 请求参数
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean submitByTemplateCode(SmsSubimtByTemplateReqVo smsSubimtByTemplateReqVo, Consumer<SmsSubimtByTemplateResp> consumer) throws Exception {
+
+        // 请求体
+        Request request = makeRequest(URI_SUBMIT_BY_TEMPLATE, JSONUtil.toJsonStr(smsSubimtByTemplateReqVo));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SmsSubimtByTemplateResp submitResp = new SmsSubimtByTemplateResp();
+                    submitResp.setStatus(-1);
+                    submitResp.setMsg(e.getMessage());
+                    consumer.accept(submitResp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SmsSubimtByTemplateResp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            SmsSubimtByTemplateResp resp = new SmsSubimtByTemplateResp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), SmsSubimtByTemplateResp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
+    }
+
+    /**
+     * 批量模板短信发送
+     *
+     * @param smsSubimtByTemplateReqVoList 模板短信发送 请求参数
+     * @param consumer
+     * @return true:同步  false 异步
+     */
+    public boolean batchSubmitByTemplateCode(List<SmsSubimtByTemplateReqVo> smsSubimtByTemplateReqVoList, Consumer<SmsBatchSubimtByTemplateResp> consumer) throws Exception {
+
+        // 请求体
+        Request request = makeRequest(URI_BATCH_SUBMIT_BY_TEMPLATE, JSONUtil.toJsonStr(smsSubimtByTemplateReqVoList));
+        // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
+        if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
+            // 异步
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SmsBatchSubimtByTemplateResp submitResp = new SmsBatchSubimtByTemplateResp();
+                    submitResp.setStatus(-1);
+                    submitResp.setMsg(e.getMessage());
+                    consumer.accept(submitResp);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    consumer.accept(JSONUtil.toBean(response.body().string(), SmsBatchSubimtByTemplateResp.class));
+                    response.body().close();
+                }
+            });
+            return false;
+        } else {
+            // 反馈实体
+            SmsBatchSubimtByTemplateResp resp = new SmsBatchSubimtByTemplateResp();
+            // 同步发送
+            try {
+                Response response = okHttpClient.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    resp = JSONUtil.toBean(response.body().string(), SmsBatchSubimtByTemplateResp.class);
+                } else {
+                    resp.setStatus(response.code());
+                    resp.setMsg(response.message());
+                }
+            } catch (IOException e) {
+                resp.setStatus(-1);
+                resp.setMsg(e.getMessage());
+            }
+            consumer.accept(resp);
+            return true;
+        }
+    }
+
 }
