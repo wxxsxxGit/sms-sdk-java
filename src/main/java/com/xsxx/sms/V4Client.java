@@ -1,14 +1,12 @@
 package com.xsxx.sms;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.xsxx.sms.model.*;
 import com.xsxx.sms.model.template.*;
 import com.xsxx.sms.security.Hmac;
-import com.xsxx.sms.util.AesUtil;
+import com.xsxx.sms.util.AES;
 import com.xsxx.sms.util.DateUtils;
 import com.xsxx.sms.util.SmsUtil;
 import okhttp3.*;
@@ -258,7 +256,7 @@ public class V4Client extends V2Client {
         // 请求体
         String body = JSONUtil.toJsonStr(sms);
         Map<String, String> aesBody = new HashMap<>();
-        aesBody.put("content", AesUtil.aesEncode(token, body));
+        aesBody.put("content", AES.aesEncrypt(body, token));
         Request request = makeRequest(URI_AES_SUBMIT, JSONUtil.toJsonStr(aesBody));
         // 发送 — 平缓时使用同步方法， 任务数 > 线程数*2 时，使用同步减速
         if (okHttpClient.dispatcher().queuedCallsCount() < MAX_REQUESTS_PER_HOST) {
