@@ -1,9 +1,6 @@
 package com.xsxx.sms.model;
 
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.xsxx.sms.constants.ApiStatus;
 
 /**
  * 反馈原型
@@ -40,12 +37,6 @@ public class Resp {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-
-    public void setStatus(ApiStatus apiStatus) {
-        this.status = apiStatus.getStatus();
-        this.msg = apiStatus.getMsg();
-    }
-
 
     @Override
     public String toString() {

@@ -82,8 +82,12 @@ public class V2Client implements BaseApi {
         // http client
         okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
-                .writeTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                //是否自动重连
+                .retryOnConnectionFailure(true)
+                // 由默认5分钟保持空闲连接改为15秒
+                .connectionPool(new ConnectionPool(200, 10, TimeUnit.SECONDS))
                 .build();
         if (requestPerHost != null && requestPerHost > 5 && requestPerHost < okHttpClient.dispatcher().getMaxRequests()) {
             MAX_REQUESTS_PER_HOST = requestPerHost;

@@ -566,4 +566,30 @@ public class V4Client extends V2Client {
         }
     }
 
+    /**
+     * 发送提交
+     *
+     * @param sms 待发短信
+     * @return SubmitResp
+     */
+    public SubmitResp submitSync(Sms sms) {
+        // 请求体
+        Request request = makeRequest(sms);
+        // 反馈实体
+        SubmitResp resp = new SubmitResp();
+        // 同步发送
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if (response.isSuccessful()) {
+                resp = JSONUtil.toBean(response.body().string(), SubmitResp.class);
+            } else {
+                resp.setStatus(response.code());
+                resp.setMsg(response.message());
+            }
+        } catch (IOException e) {
+            resp.setStatus(-1);
+            resp.setMsg(e.getMessage());
+        }
+        return resp;
+    }
 }

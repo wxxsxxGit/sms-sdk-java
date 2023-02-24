@@ -6,7 +6,7 @@
 
     <groupId>cn.wxxsxx</groupId>
     <artifactId>sms-sdk-java</artifactId>
-    <version>4.0.6</version>
+    <version>4.0.7</version>
 
     <packaging>jar</packaging>
     <name>sms-sdk</name>
@@ -176,6 +176,15 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
         </plugins>
