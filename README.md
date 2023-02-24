@@ -27,7 +27,7 @@ sms http protocol sdk
 <dependency>
     <groupId>cn.wxxsxx</groupId>
      <artifactId>sms-sdk-java</artifactId>
-     <version>4.0.6</version>
+     <version>4.0.7</version>
 </dependency>
 ```
 
